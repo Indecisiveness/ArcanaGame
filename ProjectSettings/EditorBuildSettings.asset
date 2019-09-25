@@ -1,0 +1,14 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MenuScreen.unity
+    guid: 3c812bdb67afc3f40a94da34a61ad25b
+  - enabled: 1
+    path: Assets/Scenes/ActiveBattle.unity
+    guid: 7ef3b4ee1c3c1d84cb878ff447be912f
+  m_configObjects: {}

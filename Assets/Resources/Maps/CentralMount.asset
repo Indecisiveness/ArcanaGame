@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2f694a1826ffc5439aa425e1b30801e, type: 3}
+  m_Name: CentralMount
+  m_EditorClassIdentifier: 
+  wid: 10
+  len: 10
+  grid:
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - stone/1
+  - stone/1
+  - stone/1
+  - stone/1
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - stone/1
+  - stone/2
+  - stone/2
+  - stone/2
+  - stone/2
+  - stone/1
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - stone/1
+  - stone/2
+  - stone/2
+  - stone/3
+  - stone/3
+  - stone/2
+  - stone/2
+  - stone/1
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - stone/1
+  - stone/1
+  - stone/2
+  - stone/2
+  - stone/1
+  - stone/1
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - stone/1
+  - stone/1
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  - dirt/0
+  enemies:
+  - {fileID: 8570121524194601105, guid: 55ba9c8064cf0104b9e74122e0944854, type: 3}
+  - {fileID: 8570121524194601105, guid: 55ba9c8064cf0104b9e74122e0944854, type: 3}
+  - {fileID: 8570121524194601105, guid: 55ba9c8064cf0104b9e74122e0944854, type: 3}
+  - {fileID: 8570121524194601105, guid: 55ba9c8064cf0104b9e74122e0944854, type: 3}
+  enemyLocations: 0b00000012000000520000005b000000
+  enemyNames:
+  - Harpy1
+  - Harpy2
+  - Harpy3
+  - Harpy4
+  allies: []
+  allyLocations: 
+  player:
+  - {fileID: 2840336230054749187, guid: f11e09541c051ae42825eb9587f0a2ce, type: 3}
+  - {fileID: 6446937715166402745, guid: 95d3c00fd404c244b863914cf4b2aadd, type: 3}
+  playerLocations: 2300000037000000
+  playerNames:
+  - Demi
+  - Lulu
