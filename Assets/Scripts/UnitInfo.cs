@@ -82,13 +82,19 @@ public class UnitInfo : MonoBehaviour
 
     }
 
-    public void TurnStart()
+    public void MPRegen()
     {
         currMP += (int)baseMP;
         if (currMP > maxMP)
         {
             currMP = maxMP;
         }
+
+    }
+
+    public void TurnStart()
+    {
+        MPRegen();
 
         Dictionary<string, int> newStatus = new Dictionary<string, int>();
 
@@ -97,6 +103,9 @@ public class UnitInfo : MonoBehaviour
             if (effect == "immobile")
             {
                 GameObject.Find("Move").GetComponent<Button>().interactable = false;
+                statMods[6] = -move;
+                modDur[6] = 1;
+                
             }
 
             if (effect == "poison")
@@ -131,6 +140,11 @@ public class UnitInfo : MonoBehaviour
             newStatus.Add("noTerrain", 1);
         }
 
+        if (passives.Contains("Light-Footed"))
+        {
+            newStatus.Add("noTerrain", 1);
+        }
+
 
         status = newStatus;
 
@@ -155,12 +169,30 @@ public class UnitInfo : MonoBehaviour
 
         int damage = (int)Mathf.Round(n);
 
-        currHP -= damage;
+
+       
+
+
+        if (passives.Contains("Blood Magic") && currMP > 0)
+        {
+            currMP -= damage;
+        }
+        else
+        {
+            currHP -= damage;
+        }
+
         if (currHP <= 0)
         {
             turnOrder.Remove(gameObject);
             
         }
+
+        if (passives.Contains("Martyrdom"))
+        {
+            currMP += damage / 2;
+        }
+
         return damage;
     }
 
@@ -182,7 +214,24 @@ public class UnitInfo : MonoBehaviour
 
     public void SpendMP(int n)
     {
-        currMP -= n;
+        if (passives.Contains("Half MP"))
+        {
+            n = n / 2;
+        }
+
+
+        if (passives.Contains("Blood Magic"))
+        {
+            currHP -= n;
+            if (currHP <= 0)
+            {
+                turnOrder.Remove(gameObject);
+            }
+        }
+        else
+        {
+            currMP -= n;
+        }
     }
 
     public float Swords()
@@ -190,6 +239,10 @@ public class UnitInfo : MonoBehaviour
         if (passives.Contains("Unholy Might"))
         {
             return ((swords + wands + statMods[2] + statMods[4]) * .6f);
+        }
+        else if (status.ContainsKey("bloodinversion"))
+        {
+            return (wands + statMods[4]);
         }
         else
         {
@@ -204,6 +257,11 @@ public class UnitInfo : MonoBehaviour
 
     public float Wands()
     {
+        if (status.ContainsKey("bloodinversion"))
+        {
+            return (swords + statMods[2]);
+        }
+
         return (wands + statMods[4]);
     }
 

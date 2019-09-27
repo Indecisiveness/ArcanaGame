@@ -68,6 +68,8 @@ MonoBehaviour:
   - Sleight of Hand
   - Card Trick
   - March
+  passives:
+  - Light-Footed
   weaponMod: 0.9
   weaponRange: 2
   statMods: 00000000000000000000000000000000000000000000000000000000

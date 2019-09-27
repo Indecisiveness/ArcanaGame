@@ -169,7 +169,11 @@ public class AIBehavior : MonoBehaviour
             }
         }
 
-        moveCalc.MoveFinder(unit.move, unit.currentTile, unit.status.Keys);
+        List<string> status = new List<string>();
+        status.Add(unit.faction);
+        status.AddRange(unit.status.Keys);
+
+        moveCalc.MoveFinder(unit.move, unit.currentTile, status);
         List<GameObject> possTiles = moveCalc.selectedTiles;
         
 
@@ -196,9 +200,13 @@ public class AIBehavior : MonoBehaviour
 
     private bool CanReach (UnitInfo unit, int range, int radius, string target)
     {
-        moveCalc.MoveFinder(unit.move, unit.gameObject, unit.status.Keys);
+        List<string> status = new List<string>();
+        status.Add(unit.faction);
+        status.AddRange(unit.status.Keys);
+        moveCalc.MoveFinder(unit.move, unit.gameObject, status);
         List<GameObject> positions = new List<GameObject>(); 
         positions.AddRange(moveCalc.selectedTiles);
+        positions.Add(unit.currentTile);
         moveCalc.HighlightClear();
 
 
@@ -208,6 +216,7 @@ public class AIBehavior : MonoBehaviour
         List<string> cond = new List<string>();
         cond.Add("noTerrain");
         cond.Add("noElevation");
+        cond.Add(unit.faction);
 
         value = 0;
 

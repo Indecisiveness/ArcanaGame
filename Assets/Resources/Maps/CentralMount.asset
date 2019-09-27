@@ -131,7 +131,7 @@ MonoBehaviour:
   player:
   - {fileID: 2840336230054749187, guid: f11e09541c051ae42825eb9587f0a2ce, type: 3}
   - {fileID: 6446937715166402745, guid: 95d3c00fd404c244b863914cf4b2aadd, type: 3}
-  playerLocations: 2300000037000000
+  playerLocations: 2c00000037000000
   playerNames:
   - Demi
   - Lulu

@@ -88,6 +88,12 @@ public class ActionDisplay : MonoBehaviour
   
     void ActionSend(string action)
     {
+
+        if (acting)
+        {
+            CancelAction();
+        }
+
         unit = turnOrder.currentOrder[0].GetComponent<UnitInfo>();
 
         UnitInfo.Action thisAct = actDesc.actions[action];
@@ -103,7 +109,10 @@ public class ActionDisplay : MonoBehaviour
 
         int mp = thisAct.cost;
 
-        Debug.Log("Cost: " + mp);
+        if (thisAct.shape == "blast" && unit.status.ContainsKey("widen")){
+            mp *= 2;
+        }
+
 
         string desc = thisAct.desc + "\n\rMP Cost: " + mp;
 
@@ -112,21 +121,27 @@ public class ActionDisplay : MonoBehaviour
         List<string> cond = new List<string>();
         cond.Add("noTerrain");
         cond.Add("noElevation");
+        cond.Add("enemy");
+        cond.Add("player");
 
-        if (thisAct.shape == "single" || thisAct.shape == "double")
-        {
-            List<UnitInfo> targets = moveCalc.SingleTargetFinder(unit, range, unit.currentTile, thisAct.target);
-            foreach (UnitInfo target in targets)
+        List<UnitInfo> targets = moveCalc.SingleTargetFinder(unit, range, unit.currentTile, thisAct.target);
+        foreach (UnitInfo target in targets)
             {
                 target.transform.Find("Pointer").gameObject.SetActive(true);
             }
             possTargets = targets;
             unitTarget = true;
-        }
-        else
+
+        if (!(thisAct.shape == "single" || thisAct.shape == "double"))
         {
             moveCalc.MoveFinder(range, unit.currentTile, cond);
+
             unitTarget = false;
+        }
+
+        if (thisAct.target == "self")
+        {
+            possTargets.Add(unit);
         }
 
         acting = true;
@@ -136,7 +151,7 @@ public class ActionDisplay : MonoBehaviour
     {
 
 
-        if (unitTarget && !possTargets.Contains(target.GetComponent<UnitInfo>()))
+        if (target.tag == "Unit" && !possTargets.Contains(target.GetComponent<UnitInfo>()))
         {
             Debug.Log("Invalid target");
             return;
@@ -144,18 +159,20 @@ public class ActionDisplay : MonoBehaviour
 
         Debug.Log("target name: " + target.name);
 
-        acting = false;
+        CancelAction();
 
-        if (unitTarget)
+        foreach (UnitInfo possTar in possTargets)
         {
-            foreach (UnitInfo possTar in possTargets)
-            {
                 possTar.transform.Find("Pointer").gameObject.SetActive(false);
-            }
         }
 
         string shape = currAct.shape;
         int radius = currAct.rad;
+
+        if (unit.status.ContainsKey("widen"))
+        {
+            radius++;
+        }
 
         UnitInfo targIn = new UnitInfo();
         GameObject center;
@@ -171,8 +188,14 @@ public class ActionDisplay : MonoBehaviour
             center = target;
         }
 
-
-        unit.SpendMP(currAct.cost);
+        if (unit.status.ContainsKey("widen"))
+        {
+            unit.SpendMP(currAct.cost *2);
+        }
+        else
+        {
+            unit.SpendMP(currAct.cost);
+        }
 
         List<UnitInfo> units = new List<UnitInfo>();
 
@@ -181,6 +204,8 @@ public class ActionDisplay : MonoBehaviour
         List<string> cond = new List<string>();
         cond.Add("noElevation");
         cond.Add("noTerrain");
+        cond.Add("enemy");
+        cond.Add("player");
 
 
         switch (shape)
@@ -192,9 +217,11 @@ public class ActionDisplay : MonoBehaviour
                 StartCoroutine(actHand.ActionInterpreter(unit, currAct.name, units, tiles));
                 break;
             case "blast":
+                tiles.Add(center);
                 moveCalc.HighlightClear();
                 moveCalc.MoveFinder(radius, center, cond);
-                tiles = moveCalc.selectedTiles;
+                tiles.AddRange(moveCalc.selectedTiles);
+                moveCalc.HighlightClear();
                 units.AddRange(moveCalc.BlastTargetFinder(radius, center));
                 foreach (UnitInfo unit in units)
                 {
@@ -223,17 +250,12 @@ public class ActionDisplay : MonoBehaviour
         {
             return;
         }
-
-        if (unitTarget)
+        foreach (UnitInfo target in possTargets)
         {
-
-            foreach (UnitInfo target in possTargets)
-            {
-                target.transform.Find("Pointer").gameObject.SetActive(false);
-            }
-            possTargets.Clear();
+           target.transform.Find("Pointer").gameObject.SetActive(false);
         }
-        else
+        possTargets.Clear();
+        if (!unitTarget)
         {
             moveCalc.HighlightClear();
         }

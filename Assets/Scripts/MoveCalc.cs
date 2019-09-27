@@ -33,7 +33,10 @@ public class MoveCalc : MonoBehaviour
         moving = true;
         GameObject unit = turnOrder.currentOrder[0];
         selected = unit.GetComponent<UnitInfo>();
-        MoveFinder(selected.move, selected.currentTile, selected.status.Keys);
+        List<string> status = new List<string>();
+        status.AddRange(selected.status.Keys);
+        status.Add(selected.faction);
+        MoveFinder(selected.move, selected.currentTile, status);
 
     }
 
@@ -182,14 +185,14 @@ public class MoveCalc : MonoBehaviour
 
     bool CheckTarget(UnitInfo attacker, UnitInfo target, string moveTarget)
     {
-        if (moveTarget == "enemy" || moveTarget == "enemy")
+        if (moveTarget == "enemy" || moveTarget.Contains("enemies"))
         {
             if (attacker.faction != target.faction)
             {
                 return true;
             }
         }
-        if (moveTarget == "ally" || moveTarget == "allies")
+        if (moveTarget == "ally" || moveTarget.Contains("allies"))
         {
             if (attacker.faction == target.faction)
             {
@@ -225,10 +228,29 @@ public class MoveCalc : MonoBehaviour
             string terrain = hit.transform.gameObject.tag;
 
 
+
             if (terrain == "Unit")
             {
-                return;
+                UnitInfo unIf = hit.transform.parent.GetComponent<UnitInfo>();
+                if (!status.Contains(unIf.faction))
+                { 
+                    return;
+                }
+               else
+                {
+                    terrain = unIf.currentTile.tag;
+                    newMove -= checkCost(terrain, (int)(unIf.currentTile.transform.position.y - position.y), status);
+                    if (newMove > 0)
+                    {
+                        checkupX(newMove, unIf.currentTile, status);
+                        checkupZ(newMove, unIf.currentTile, status);
+                        checkdownZ(newMove, unIf.currentTile, status);
+                    }
+                    
+                }
+
             }
+
 
             int eleDiff = (int)(height - position.y);
 

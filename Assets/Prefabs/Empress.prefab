@@ -123,6 +123,8 @@ MonoBehaviour:
   - Windstorm
   - Tidal Wave
   - Basic Attack 3
+  - Widen Blast
+  passives: []
   weaponMod: 0.8
   weaponRange: 3
   statMods: 00000000000000000000000000000000000000000000000000000000

@@ -418,6 +418,8 @@ MonoBehaviour:
   - Quicksand
   - Lightning
   - Eruption
+  passives:
+  - Half MP
   weaponMod: 0.8
   weaponRange: 3
   statMods: 00000000000000000000000000000000000000000000000000000000

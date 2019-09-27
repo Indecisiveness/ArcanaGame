@@ -78,9 +78,9 @@ public class MapObject : MonoBehaviour
 
         for (int i = 0; i < mapData.enemies.Length; i++)
         {
-            int x = mapData.enemyLocations[i] % mapData.len;
+            int x = mapData.enemyLocations[i] / mapData.len;
             int height = 0;
-            int z = mapData.enemyLocations[i] / mapData.len;
+            int z = mapData.enemyLocations[i] % mapData.len;
 
             RaycastHit hit;
 
@@ -92,7 +92,7 @@ public class MapObject : MonoBehaviour
             }
             
 
-            GameObject unit = Instantiate(mapData.enemies[i], new Vector3(mapData.enemyLocations[i] % mapData.len, height+1, mapData.enemyLocations[i] / mapData.len), Quaternion.identity, mapObj.transform);
+            GameObject unit = Instantiate(mapData.enemies[i], new Vector3(x, height+1, z), Quaternion.identity, mapObj.transform);
             unit.transform.Find("Pointer").gameObject.SetActive(false);
             this.gameObject.GetComponent<TurnOrder>().currentOrder.Add(unit);
             units[i] = unit;
@@ -108,9 +108,9 @@ public class MapObject : MonoBehaviour
 
         for (int i = 0; i<mapData.player.Length; i++)
         {
-            int x = mapData.playerLocations[i] % mapData.len;
+            int x = mapData.playerLocations[i] / mapData.len;
             int height = 0;
-            int z = mapData.playerLocations[i] / mapData.len;
+            int z = mapData.playerLocations[i] % mapData.len;
 
             RaycastHit hit;
 

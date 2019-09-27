@@ -348,7 +348,7 @@ GameObject:
   - component: {fileID: 8128740747656875225}
   - component: {fileID: 2835370525717298831}
   m_Layer: 0
-  m_Name: HighPriestees
+  m_Name: HighPriestess
   m_TagString: Unit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -404,6 +404,8 @@ MonoBehaviour:
   - Dispel
   - Sap Strength
   - Magic Shield
+  passives:
+  - Martyrdom
   weaponMod: 0.8
   weaponRange: 1
   statMods: 00000000000000000000000000000000000000000000000000000000

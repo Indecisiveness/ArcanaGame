@@ -59,45 +59,31 @@ public class ActionHandler : MonoBehaviour
             string[] args = s.Split(',');
 
             List<string> tags = new List<string>();
-            int[] move;
+            int move;
             string[] effects;
 
             switch (args[0])
             {
                 case "move1":
-                    move = new int[1];
-                    move[0] = Int32.Parse(args[2]);
+                    move = Int32.Parse(args[2]);
                     for (int i = 3; i < args.Length; i++)
                     {
                         tags.Add(args[i]);
                     }
                     if (args[1] == "self")
                     {
-                     
-                        yield return StartCoroutine(MoveUnit(self, move, tags));
+                        yield return StartCoroutine(MoveUnit(attacker.currentTile,self, move, tags));
                     }
                     else
                     {
-                        yield return StartCoroutine(MoveUnit(defender, move, tags));
-                    }
-                    break;
-                case "move2":
-                  
-                    move = new int[2];
-                    move[0] = Int32.Parse(args[2]);
-                    move[1] = Int32.Parse(args[3]);
-
-                    for (int i = 4; i < args.Length; i++)
-                    {
-                        tags.Add(args[i]);
-                    }
-                    if (args[1] == "self")
-                    {
-                        yield return StartCoroutine(MoveUnit(self, move, tags));
-                    }
-                    else
-                    {  
-                        yield return StartCoroutine(MoveUnit(defender, move, tags));
+                        if (actionList.actions[action].shape == "blast")
+                        {
+                            yield return StartCoroutine(MoveUnit(tiles[0], defender, move, tags));
+                        }
+                        else
+                        {
+                            yield return StartCoroutine(MoveUnit(attacker.currentTile, defender, move, tags));
+                        }
                     }
                     break;
                 case "attack":
@@ -117,7 +103,7 @@ public class ActionHandler : MonoBehaviour
                         dur[i] = Int32.Parse(args[num + i + 1]);
                     }
 
-                    yield return StartCoroutine(Status(defender, effects, dur));
+                    yield return StartCoroutine(Status(attacker, defender, effects, dur));
                     break;
                 case "tile":
                     effects = new string[args.Length - 3];
@@ -127,6 +113,17 @@ public class ActionHandler : MonoBehaviour
                     }
                     yield return StartCoroutine(TileChange(tiles, args[1], Int32.Parse(args[2]), effects));
                     break;
+                case "self":
+                    int quant = (args.Length - 1) / 2;
+                    effects = new string[quant];
+                    int[] duration = new int[quant];
+                    for (int i = 0; i < quant; i++)
+                    {
+                        effects[i] = args[i + 1];
+                        duration[i] = Int32.Parse(args[quant + i + 1]);
+                    }
+                    yield return StartCoroutine(SelfEffect(attacker, effects, duration));
+                    break;
                 default:
                     Debug.Log("error in move");
                     break;
@@ -135,16 +132,34 @@ public class ActionHandler : MonoBehaviour
 
         if (attacker.faction == "player")
         {
-            turnOrder.TakeTurn();
+            if (attacker.status.ContainsKey("another"))
+            {
+                attacker.status.Remove("another");
+               
+            }
+            else if (attacker.status.ContainsKey("double"))
+            {
+                attacker.status.Remove("double");
+                attacker.status.Add("another", 1);
+            }
+            else
+            {
+                turnOrder.TakeTurn();
+            }
         }
 
     }
 
-    IEnumerator MoveUnit (List<UnitInfo> targets, int[] distance, List<string> mods)
+    IEnumerator MoveUnit (GameObject center, List<UnitInfo> targets, int distance, List<string> mods)
     {
+        Debug.Log("moving targts");
 
         foreach (UnitInfo target in targets)
         {
+
+            int persDist = distance;
+
+            Debug.Log("moving target: " + target.name);
 
             int x = (int)target.transform.position.x;
             int z = (int)target.transform.position.z;
@@ -156,7 +171,8 @@ public class ActionHandler : MonoBehaviour
             if (mods.Contains("free"))
             {
                 moveCalc.selected = target;
-                moveCalc.MoveFinder(distance[0], target.currentTile, mods);
+                mods.Add(target.faction);
+                moveCalc.MoveFinder(distance, target.currentTile, mods);
                 moveCalc.moving = true;
                 cubeClick.HideAllMenus();
                 
@@ -173,74 +189,78 @@ public class ActionHandler : MonoBehaviour
 
                 if (mods.Contains("forced"))
                 {
-                    while (distance[0] != 0)
-                    {
-                        string tileName;
-                        int tileX = x;
-                        int tileZ = z;
+                    string tileName;
+                    int tileX = x;
+                    int tileZ = z;
 
-                        if (distance[0] > 0)
+                    tileName = "x" + tileX + "y" + tileZ;
+
+                    Debug.Log("start position: " + tileName);
+
+                    int centerX = (int)center.transform.position.x;
+                    int centerZ = (int)center.transform.position.z;
+
+
+                    while (persDist != 0)
+                    {
+                        int diffX = tileX - centerX;
+                        int diffZ = tileZ - centerZ;
+
+                        if (diffX == 0 && diffZ == 0)
                         {
-                            tileName = "x" + (x + 1) + "y" + z;
-                            tileX++;
-                            distance[0]--;
+                            break;
+                        }
+
+                        if (Mathf.Abs(diffX) > Mathf.Abs(diffZ))
+                        {
+                            if ((diffX > 0 && mods.Contains("push")) || (diffX < 0 && mods.Contains("pull")))
+                            {
+                                tileName = "x" + (tileX + 1) + "y" + tileZ;
+                                tileX++;
+                                persDist--;
+                            }
+                            else
+                            {
+                                tileName = "x" + (tileX - 1) + "y" + tileZ;
+                                tileX--;
+                                persDist--;
+                            }
                         }
                         else
                         {
-                            tileName = "x" + (x - 1) + "y" + z;
-                            tileX--;
-                            distance[0]++;
+                            if ((diffZ > 0 && mods.Contains("push")) || (diffZ < 0 && mods.Contains("pull")))
+                            {
+                                tileName = "x" + tileX + "y" + (tileZ + 1);
+                                tileZ++;
+                                persDist--;
+                            }
+                            else
+                            {
+                                tileName = "x" + tileX + "y" + (tileZ-1);
+                                tileZ--;
+                                persDist--;
+                            }
                         }
+
+
 
                         GameObject nextTile = mapParent.transform.Find(tileName).gameObject;
 
                         if (nextTile == null)
                         {
+                            Debug.Log("edge of map");
                             break;
                         }
 
-                        if ((int)(nextTile.transform.position.y) > (ele + 2))
+
+
+                        if ((int)(nextTile.transform.position.y) > (ele + 2) || nextTile.GetComponent<TileTextInfo>().currOcc != null)
                         {
+                            Debug.Log("move blocked");
                             break;
                         }
 
-                        target.transform.position = new Vector3(tileX, (nextTile.transform.position.y + 1), tileZ);
-                        target.currentTile.GetComponent<TileTextInfo>().currOcc = null;
-                        target.currentTile = nextTile;
-                        moved++;
-
-                    }
-
-                    while (distance[1] != 0)
-                    {
-                        string tileName;
-                        int tileX = x;
-                        int tileZ = z;
-
-                        if (distance[1] > 0)
-                        {
-                            tileName = "x" + x + "y" + (z + 1);
-                            tileZ++;
-                            distance[1]--;
-                        }
-                        else
-                        {
-                            tileName = "x" + x + "y" + (z - 1);
-                            tileZ--;
-                            distance[1]++;
-                        }
-
-                        GameObject nextTile = mapParent.transform.Find(tileName).gameObject;
-
-                        if (nextTile == null)
-                        {
-                            break;
-                        }
-
-                        if ((int)(nextTile.transform.position.y) > (ele + 2))
-                        {
-                            break;
-                        }
+                        Debug.Log("moving to: " + nextTile.name);
 
                         target.transform.position = new Vector3(tileX, (nextTile.transform.position.y + 1), tileZ);
                         target.currentTile.GetComponent<TileTextInfo>().currOcc = null;
@@ -249,7 +269,6 @@ public class ActionHandler : MonoBehaviour
 
                     }
                 }
-
             }
         }
         yield return StartCoroutine(MoveSelect());
@@ -266,9 +285,19 @@ public class ActionHandler : MonoBehaviour
     IEnumerator Damage (UnitInfo attacker, List<UnitInfo> defenders, string attackStat, List<string> tags)
     {
 
+        if (tags.Contains("replenish"))
+        {
+            int num = attacker.currMP;
+            attacker.SpendMP(num);
+            defenders[0].SpendMP(-num);
+
+        }
+
+
         float multi = attacker.weaponMod;
         float levelMod = (1 + (float)(attacker.level - 1) / 3);
         float offVal = 10;
+
 
         foreach (UnitInfo defender in defenders)
         {
@@ -297,6 +326,18 @@ public class ActionHandler : MonoBehaviour
             else if (attacker.status.ContainsKey("rage"))
             {
                 multi *= 1.25f;
+            }
+
+            if (attacker.status.ContainsKey("bloodinversion"))
+            {
+                if (attacker.maxHP/attacker.currHP > 2)
+                {
+                    multi *= attacker.maxHP / attacker.currHP;
+                }
+                else
+                {
+                    multi *= 2;
+                }
             }
 
             if (attackStat == "swords")
@@ -331,6 +372,11 @@ public class ActionHandler : MonoBehaviour
                 damageNum *= .75f;
             }
 
+            if (attacker.status.ContainsKey("combo"))
+            {
+                damageNum *= 1.3f;
+            }
+
             if (tags.Contains("melee"))
             {
                 if (defender.currentTile.tag == "Forest")
@@ -341,13 +387,24 @@ public class ActionHandler : MonoBehaviour
                 {
                     damageNum *= .75f;
                 }
+                if (defender.passives.Contains("Counterblow") && !attacker.passives.Contains("Counterblow"))
+                {
+                    List<UnitInfo> att = new List<UnitInfo>();
+                    att.Add(attacker);
+                    List<string> blank = new List<string>();
+                    StartCoroutine(Damage(defender, att, "swords", blank));
+                }
             }
-            if (defender.currentTile.tag == "Water" && tags.Contains("area"))
-            {
-                damageNum *= .75f;
+            if (tags.Contains("area")) {
+                if (defender.currentTile.tag == "Water")
+                {
+                    damageNum *= .75f;
+                }
+                if (defender.passives.Contains("Evade"))
+                {
+                    damageNum *= .75f;
+                }
             }
-
-
             if (!tags.Contains("spell") && defender.status.ContainsKey("physBlock"))
             {
                 damageNum -= (defender.level)/3;
@@ -378,13 +435,27 @@ public class ActionHandler : MonoBehaviour
             }
             else
             {
-                int dam = defender.TakeDamage(damageNum);
-                turnHist.AddMessage(attacker.name + " deals " + dam + " damage to " + defender.name);
-                if (tags.Contains("drain"))
+                if (tags.Contains("MPDam"))
                 {
-                    attacker.Heal(dam / 2);
-                    turnHist.AddMessage(attacker.name + " drained " + dam / 2 + " damage");
+                    defender.SpendMP((int)damageNum);
+                    if (tags.Contains("Siphon"))
+                    {
+                        attacker.SpendMP((int)-damageNum);
+                    }
+
+                    turnHist.AddMessage(attacker.name + " drains " + damageNum + " MP from " + defender.name);
                 }
+                else
+                {
+                    int dam = defender.TakeDamage(damageNum);
+                    turnHist.AddMessage(attacker.name + " deals " + dam + " damage to " + defender.name);
+                    if (tags.Contains("drain"))
+                    {
+                        attacker.Heal(dam / 2);
+                        turnHist.AddMessage(attacker.name + " drained " + dam / 2 + " damage");
+                    }
+                }
+               
             }
 
             
@@ -394,8 +465,27 @@ public class ActionHandler : MonoBehaviour
         yield return new WaitForSeconds(0.0f);
     }
 
-    IEnumerator Status (List<UnitInfo> targets, string[] effects, int[] duration)
+    IEnumerator Status (UnitInfo attacker, List<UnitInfo> targets, string[] effects, int[] duration)
     {
+        if (effects[0] == "swap")
+        {
+            if (targets.Count == 2)
+            {
+                GameObject tile0 = targets[0].currentTile;
+                GameObject tile1 = targets[1].currentTile;
+                cubeClick.MoveToTile(tile0, targets[1].gameObject);
+                cubeClick.MoveToTile(tile1, targets[0].gameObject);
+            }
+            else if (targets.Count == 1)
+            {
+                GameObject tile0 = attacker.currentTile;
+                GameObject tile1 = targets[0].currentTile;
+                cubeClick.MoveToTile(tile0, targets[0].gameObject);
+                cubeClick.MoveToTile(tile1, attacker.gameObject);
+            }
+
+        }
+
         foreach (UnitInfo target in targets)
         {
             Dictionary<string,int> currentStatus = target.status;
@@ -428,6 +518,10 @@ public class ActionHandler : MonoBehaviour
                 else if (effects[i].Contains("move")) {
                     target.statMods[6] += Int32.Parse(effects[i].Substring(4));
                     target.modDur[6] = duration[i];
+                }
+                else if (effects[i] == "MPRegen")
+                {
+                    target.MPRegen();
                 }
 
                 else
@@ -503,6 +597,93 @@ public class ActionHandler : MonoBehaviour
 
         yield return new WaitForSeconds(0.0f);
 
+    }
+
+    IEnumerator SelfEffect(UnitInfo self, string[] effects, int[] duration)
+    {
+
+        Dictionary<string, int> currentStatus = self.status;
+        for (int i = 0; i < effects.Length; i++)
+        {
+
+            if (effects[i].Contains("HP"))
+            {
+                self.statMods[0] += Int32.Parse(effects[i].Substring(2));
+                self.modDur[0] = duration[i];
+            }
+            else if (effects[i].Contains("MP"))
+            {
+                self.statMods[1] += Int32.Parse(effects[i].Substring(2));
+                self.modDur[1] = duration[i];
+            }
+            else if (effects[i].Contains("swords"))
+            {
+                self.statMods[2] += Int32.Parse(effects[i].Substring(6));
+                self.modDur[2] = duration[i];
+            }
+            else if (effects[i].Contains("cups"))
+            {
+                self.statMods[3] += Int32.Parse(effects[i].Substring(4));
+                self.modDur[3] = duration[i];
+            }
+            else if (effects[i].Contains("wands"))
+            {
+                self.statMods[4] += Int32.Parse(effects[i].Substring(5));
+                self.modDur[4] = duration[i];
+            }
+            else if (effects[i].Contains("pent"))
+            {
+                self.statMods[5] += Int32.Parse(effects[i].Substring(4));
+                self.modDur[5] = duration[i];
+            }
+            else if (effects[i].Contains("move"))
+            {
+                self.statMods[6] += Int32.Parse(effects[i].Substring(4));
+                self.modDur[6] = duration[i];
+            }
+            else if (effects[i] == "bloodinversion")
+            {
+                int amt = self.currHP - 1;
+                self.currHP = 1;
+                self.currMP += amt;
+                currentStatus.Add("bloodinversion", 3);
+            }
+            else if (effects[i] == "chakraswap")
+            {
+                int hold = self.currHP;
+                self.currHP = self.currMP;
+                self.currMP = hold;
+            }
+            else if (effects[i] == "MPRegen")
+            {
+                self.MPRegen();
+            }
+            else if (effects[i] == "dispel")
+            {
+                currentStatus.Clear();
+            }
+            else if (effects[i] == "widen")
+            {
+                if (currentStatus.ContainsKey("widen"))
+                {
+                    currentStatus.Remove("widen");
+                }
+                else
+                {
+                    currentStatus.Add("widen", 1);
+                }
+            }
+            else
+            {
+                string name = effects[i];
+                currentStatus.Add(name, duration[i]);
+            }
+        }
+
+        self.status = currentStatus;
+
+
+        yield return new WaitForSeconds(0.0f);
     }
 
 

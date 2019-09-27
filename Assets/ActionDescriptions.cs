@@ -24,6 +24,8 @@ public class ActionDescriptions : ScriptableObject
         new UnitInfo.Action("Windstorm", 4, 2, "blast", "A spell producing blast of air, knocking targets back", "enemies allies", 6)},
         {"Tidal Wave",
         new UnitInfo.Action("Tidal Wave", 4, 1, "blast", "A spell producing a rushing tide, replacing area with water", "enemies allies", 6)},
+        {"Siphon",
+        new UnitInfo.Action("Siphon", 4, 0, "single", "A spell draining MP from a single target to replenish the caster", "enemy", 0)},
         {"Project Force",
         new UnitInfo.Action("Project Force", 3, 0, "single", "A surge of chi which hits at a distance, using Pentacles", "enemy", 4)},
         {"Leg Sweep",
@@ -32,6 +34,8 @@ public class ActionDescriptions : ScriptableObject
         new UnitInfo.Action("Reversal Throw", 1, 0, "single", "A throw that uses the target's strength against them", "enemy", 6)},
         {"Harness Chakra",
         new UnitInfo.Action("Harness Chakra", 0, 0, "single", "Focus spiritual energy to exchange HP and MP", "self", 0)},
+        {"One-Two Punch",
+        new UnitInfo.Action("One-Two Punch", 1, 0, "single", "Strike a target and set up for the next attack", "enemy", 4)},
         {"Steal",
         new UnitInfo.Action("Steal", 1, 0, "single", "Pickpocket a foe, gaining an equipped item", "enemy", 0)},
         {"Hamstring",
@@ -75,7 +79,7 @@ public class ActionDescriptions : ScriptableObject
         { "Levitation",
         new UnitInfo.Action("Levitation", 0, 2, "blast", "A spell which telekinetically raises allies, allowing them to move without obstacle", "allies", 6)},
         {"Replenish",
-        new UnitInfo.Action("Replenish", 4, 0, "single", "Gift an ally with spell power", "ally", -1)},
+        new UnitInfo.Action("Replenish", 4, 0, "single", "Gift an ally with spell power", "ally", 0)},
         {"Frenzy",
         new UnitInfo.Action("Frenzy", 0, 0, "single", "Enter a rage, preventing skill use but increasing damage", "self", 0)},
         {"Cleave",
@@ -83,7 +87,7 @@ public class ActionDescriptions : ScriptableObject
         {"Jump Attack",
         new UnitInfo.Action("Jump Attack", 3, 0, "single", "Leap up to two squares, then attack an enemy", "enemy", 4)},
         {"War Cry",
-        new UnitInfo.Action("War Cry", 0, 2, "burst", "Boost Swords for self and targets within 2", "allies", 4)},
+        new UnitInfo.Action("War Cry", 0, 2, "blast", "Boost Swords for self and targets within 2", "self", 4)},
         {"Blooddrinker",
         new UnitInfo.Action("Blooddrinker", 1, 0, "single", "Attack a target and restore health based on damage dealt", "enemy", 6)},
         {"Double-Deal",
@@ -91,7 +95,7 @@ public class ActionDescriptions : ScriptableObject
         {"Sleight of Hand",
         new UnitInfo.Action("Sleight of Hand", 2, 0, "double", "Swap the positions of two targets in range", "any", 2)},
         {"Card Trick",
-        new UnitInfo.Action("Card Trick", 5, 2, "burst", "Raise or lower a stat by 2 for all targets in the affected area", "any", 4)},
+        new UnitInfo.Action("Card Trick", 5, 2, "blast", "Raise or lower a stat by 2 for all targets in the affected area", "any", 4)},
         {"March",
          new UnitInfo.Action("March", 3, 0, "single", "Move another unit instantly", "any", 2)},
         {"Shell Game",
@@ -111,13 +115,13 @@ public class ActionDescriptions : ScriptableObject
         {"Drain",
         new UnitInfo.Action("Drain", 3, 0, "single", "A spell that siphons life from a foe, gaining it back as health", "enemy", 0)},
         {"Tainted Rain",
-        new UnitInfo.Action("Tainted Rain", 4, 1, "burst", "A spell that damages and poison targets in an area", "enemies allies", 6)},
+        new UnitInfo.Action("Tainted Rain", 4, 1, "blast", "A spell that damages and poison targets in an area", "enemies allies", 6)},
         {"Rapid Recovery",
-        new UnitInfo.Action("Rapid Recovery", 3, 1, "burst", "A spell that stimulates targets' cells, restoring health each turn", "allies enemies", 6)},
+        new UnitInfo.Action("Rapid Recovery", 3, 1, "blast", "A spell that stimulates targets' cells, restoring health each turn", "allies enemies", 6)},
         {"Distemper",
         new UnitInfo.Action("Distemper", 4, 0, "single", "Cause a target to go berserk, losing use of abilities and spells", "any", 4)},
         {"Serum Tincture",
-        new UnitInfo.Action("Serum Tincture", 3, 2, "burst", "Immediately restore MP to targets in area", "allies enemies", 4)},
+        new UnitInfo.Action("Serum Tincture", 3, 2, "blast", "Immediately restore MP to targets in area", "allies enemies", 4)},
         {"Blood Inversion",
         new UnitInfo.Action("Blood Inversion", 0, 0, "single", "Reduce HP to 1 and restore an equal amount of MP. Exchange S and W. Damage increases based on missing HP", "self", 0)},
         {"Telekinetic Grasp",
@@ -131,10 +135,13 @@ public class ActionDescriptions : ScriptableObject
         {"Quake Strike",
         new UnitInfo.Action("Quake Strike", 1, 4, "strLine", "Call on the power of earth to strike targets in a line", "enemies allies", 6)},
         {"Blade Storm",
-        new UnitInfo.Action("Blade Storm", 4, 1, "burst", "Summon a flurry of blades, applying bonuses from Swords to the spell", "enemies allies", 6)},
+        new UnitInfo.Action("Blade Storm", 4, 1, "blast", "Summon a flurry of blades, applying bonuses from Swords to the spell", "enemies allies", 6)},
 
         {"Buffet",
-        new UnitInfo.Action("Buffet", 3, 0, "enemy", "Beat wings to produce cutting winds", "enemy", 4)}
+        new UnitInfo.Action("Buffet", 3, 0, "enemy", "Beat wings to produce cutting winds", "enemy", 4)},
+
+        {"Widen Blast",
+        new UnitInfo.Action("Widen Blast", 0, 0, "single", "Increase the radius and MP cost of next move used", "self", 0)}
 
         };
 
@@ -167,14 +174,21 @@ public class ActionDescriptions : ScriptableObject
         },
         {"Windstorm", new[]
             {
-               "attack,wands,spell,area,wind", "move1,target,1,forced"
+               "attack,wands,spell,area,wind", "move1,target,1,forced,push"
             }
         },
-            {"Tidal Wave", new[]
+        {"Tidal Wave", new[]
             {
                "attack,wands,spell,area,water", "tile,water,0,none"
             }
         },
+        {"Siphon", new[]
+            {
+                "attack,wands,spell,MPDam,siphon"
+            }
+
+        },
+
             {"Project Force", new[]
             {
                "attack,pentacles"
@@ -192,9 +206,15 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Harness Chakra", new[]
             {
-               "effect,chakraswap"
+               "self,chakraswap,0", "self,another,1"
             }
         },
+        {"One-Two Punch", new[]
+            {
+               "attack,swords,melee","self,combo,2"
+            }
+        },
+
         { "Steal", new[]
             {
                "status,itemsteal,-1"
@@ -212,12 +232,12 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Garrote", new[]
             {
-               "attack,swords,melee", "status,silence,1"
+               "attack,swords,melee", "status,silence,2"
             }
         },
         { "Disarm", new[]
             {
-               "status,disarm,1"
+               "status,disarm,2"
             }
         },
        {"Scorpion Sting", new[]
@@ -252,7 +272,7 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Dispel", new[]
             {
-              "effect,dispel"
+              "status,dispel,0"
             }
         },
         { "Sap Strength", new[]
@@ -297,12 +317,12 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Levitation", new[]
             {
-               "status,noTerrain,noElevation,2,2"
+               "status,noTerrain,noElevation,3,3"
             }
         },
         { "Replenish", new[]
             {
-               "effect,replenish"
+               "attack,pentacles,replenish"
             }
         },
         { "Frenzy", new[]
@@ -322,7 +342,7 @@ public class ActionDescriptions : ScriptableObject
         },
         { "War Cry", new[]
             {
-               "status,swords2,3"
+               "status,swords2,3","self,another,1"
             }
         },
         { "Blooddrinker", new[]
@@ -332,17 +352,17 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Double-Deal", new[]
             {
-               "effect,double"
+               "self,double,1"
             }
         },
         { "Sleight of Hand", new[]
             {
-               "effect,swap"
+               "status,swap,0"
             }
         },
         { "Card Trick", new[]
             {
-               "effect,card"
+               "effect,card" //needs a pop-up
             }
         },
         { "March", new[]
@@ -352,12 +372,12 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Shell Game", new[]
             {
-               "effect,swap"
+               "status,swap,0"
             }
         },
         { "Bamboozle", new[]
             {
-               "status,disable,1"
+               "status,disable,2"
             }
         },
         { "Holy Smite", new[]
@@ -382,12 +402,12 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Knight's Challenge", new[]
             {
-               "attack,swords,melee", "status,challenge,1"
+               "attack,swords,melee", "status,challenge,2"
             }
         },
         { "Careful Blow", new[]
             {
-               "attack,swords,melee", "status,careful,1"
+               "attack,swords,melee", "self,careful,1"
             }
         },
         { "Drain", new[]
@@ -412,12 +432,12 @@ public class ActionDescriptions : ScriptableObject
         },
         { "Serum Tincture", new[]
             {
-               "effect,MPRegen"
+               "status,MPRegen,0", "self,MPRegen,0"
             }
         },
         { "Blood Inversion", new[]
             {
-               "effect,bloodinversion"
+               "self,bloodinversion,3","self,another,1"
             }
         },
         { "Telekinetic Grasp", new[]
@@ -455,6 +475,12 @@ public class ActionDescriptions : ScriptableObject
         { "Buffet", new[]
             {
             "attack,cups,wind"
+            }
+        },
+
+        {"Widen Blast", new[]
+            {
+             "self,widen,another,1,1"
             }
         }
 

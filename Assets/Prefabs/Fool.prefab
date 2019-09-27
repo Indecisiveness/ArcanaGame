@@ -160,6 +160,8 @@ MonoBehaviour:
   - Hamstring
   - Tripwire
   - Garrote
+  passives:
+  - Evade
   weaponMod: 1
   weaponRange: 1
   statMods: 00000000000000000000000000000000000000000000000000000000

@@ -327,6 +327,8 @@ MonoBehaviour:
   - Pillar of Light
   - Blessing
   - Lay on Hands
+  passives:
+  - Guard
   weaponMod: 1.3
   weaponRange: 1
   statMods: 00000000000000000000000000000000000000000000000000000000

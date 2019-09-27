@@ -250,6 +250,8 @@ MonoBehaviour:
   - Reversal Throw
   - Harness Chakra
   - Basic Attack
+  passives:
+  - Counterblow
   weaponMod: 1
   weaponRange: 1
   statMods: 00000000000000000000000000000000000000000000000000000000

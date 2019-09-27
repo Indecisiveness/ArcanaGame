@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2f694a1826ffc5439aa425e1b30801e, type: 3}
-  m_Name: BabyMap
+  m_Name: High Ground
   m_EditorClassIdentifier: 
   wid: 10
   len: 10
